@@ -1,7 +1,7 @@
 // -------------- Details --------------
 //
 // Name    : Analib
-// Version : 0.1.1
+// Version : 0.1.2
 //
 // Author  : Simon Danielsson
 // Email   : contact@simondanielsson.se
@@ -78,7 +78,7 @@ ANALIB_DEF int AL_int_min(int a, int b);
 // =============================================================================
 
 // get length of str
-ANALIB_DEF int AL_str_get_size(char *s);
+ANALIB_DEF int AL_str_len(char *s);
 
 #endif // ANALIB_H_
 #ifdef ANALIB_IMPLEMENTATION
@@ -132,7 +132,7 @@ ANALIB_DEF int AL_int_max(int a, int b) { return a > b ? a : b; }
 // IMPLEMENTATIONS: STRINGS
 // =============================================================================
 
-ANALIB_DEF int AL_str_get_size(char *s) {
+ANALIB_DEF int AL_str_len(char *s) {
   char *t;
   for (t = s; *t != '\0'; t++)
     ;
