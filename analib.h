@@ -41,8 +41,9 @@
 #ifndef ANALIB_H_
 #define ANALIB_H_
 
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
-#include <time.h>
 
 #ifndef ANALIB_DEF
 #define ANALIB_DEF
@@ -51,17 +52,19 @@
 // DEFINITIONS: DEBUG
 // =============================================================================
 
-// assert that doesn't abort continued execution if false
-#define AL_db_assert(cond)                                                     \
-  do {                                                                         \
-    if (!(cond)) {                                                             \
-      fprintf(stderr, "ASSERT FALSE: %s (%s:%d)\n", #cond, __FILE__,           \
-              __LINE__);                                                       \
-    }                                                                          \
-  } while (0)
+// helper function for debug related functions
+ANALIB_DEF void AL_db_make_label(const char *label, char *header,
+                                 int header_size);
 
-// formatted log message with file, line and date
-ANALIB_DEF void AL_db_log(const char *msg);
+// formatted log message
+#define AL_db_log(msg) AL_db_log_impl((msg), __FILE_NAME__, __LINE__)
+ANALIB_DEF void AL_db_log_impl(const char *msg, const char *file, int line);
+
+// assert and continue program
+#define AL_db_assert(cond)                                                     \
+  AL_db_assert_impl((cond), #cond, __FILE_NAME__, __LINE__)
+ANALIB_DEF void AL_db_assert_impl(int cond, const char *expr, const char *file,
+                                  int line);
 
 // DEFINITIONS: INTEGERS
 // =============================================================================
@@ -83,23 +86,40 @@ ANALIB_DEF int AL_str_get_size(char *s);
 // IMPLEMENTATIONS: DEBUG
 // =============================================================================
 
-ANALIB_DEF void AL_db_log(const char *msg) {
-  time_t now = time(NULL);
-  struct tm *t = localtime(&now);
+ANALIB_DEF void AL_db_assert_impl(int cond, const char *expr, const char *file,
+                                  int line) {
+  if (!cond) {
 
-  char date[24];
-  snprintf(date, sizeof(date), "%02d-%02d-%d %02d:%02d:%02d", t->tm_mday,
-           t->tm_mon + 1, t->tm_year + 1900, t->tm_hour, t->tm_min, t->tm_sec);
+    char label[24];
+    AL_db_make_label("ASSERT", label, 24);
+    fprintf(stderr, "\n%s\nfile  : %s:%d\nfalse : %s\n", label, file, line,
+            expr);
+  }
+}
 
-  char header[64];
-  int header_len = snprintf(header, sizeof(header), "----- %s:%d [%s] -----\n",
-                            __FILE_NAME__, __LINE__, date);
+ANALIB_DEF void AL_db_make_label(const char *label, char *header,
+                                 int header_size) {
+  int label_size = strlen(label);
+  int wings_len = (header_size - label_size - 2) / 2;
 
-  char div[header_len];
-  memset(div, '-', header_len);
-  div[header_len - 1] = '\0';
+  if (wings_len <= 0 || header_size <= 0) {
+    if (header_size > 0)
+      header[0] = '\0';
+    return;
+  }
 
-  fprintf(stdout, "%s%s\n%s\n", header, msg, div);
+  char wing[wings_len + 1];
+  memset(wing, '-', wings_len);
+  wing[wings_len] = '\0';
+
+  snprintf(header, header_size, "%s %s %s", wing, label, wing);
+}
+
+ANALIB_DEF void AL_db_log_impl(const char *msg, const char *file, int line) {
+  char label[24];
+  AL_db_make_label("LOG", label, 24);
+
+  fprintf(stdout, "\n%s\nfile  : %s:%d\nmsg   : %s\n", label, file, line, msg);
 }
 
 // IMPLEMENTATIONS: INTEGERS
