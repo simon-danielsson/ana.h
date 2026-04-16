@@ -1,6 +1,6 @@
-<h1 align="center">
-    Analib
-</h1>
+<p align="center">
+    <img src="media/logo.png" alt="analib" width="200"/>
+</p>
   
 <p align="center">
   <em>Header-only C library</em>
@@ -28,14 +28,19 @@ This is a header-only library for utility functions and data structures.
 - Dynamic arrays inspired by the Vector type of Rust.  
 - Hashmaps  
   
-Loosely inspired by [sv.h](https://github.com/tsoding/sv/).  
+Inspired by [sv.h](https://github.com/tsoding/sv/).  
    
 ---
 <div id="usage"></div>
 
 ## Usage
   
-Just copy analib.h into your project and start coding.  
+Copy [analib.h](./analib.h) into your project and include it like this:  
+  
+```c
+#define ANALIB_IMPLEMENTATION
+#include "./analib.h"
+```
   
 ---
 <div id="license"></div>
