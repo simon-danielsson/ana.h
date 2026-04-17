@@ -23,7 +23,7 @@
 
 ## Info
     
-This library was built to contain most of the common utilities I need for building programs in C. I have chosen not to constrain the library to any specific utility or theme - my goal is instead to have a single header file filled with everything I need, that I can copy into my projects as an easy default. Analib is a criminally opinionated library built to cater only to myself, and myself only.  
+This library is built to house some of the most common utilities I make use of when building programs in C - I have chosen not to constrain the library to any specific utility or theme. Analib is a criminally opinionated library built to cater only to myself, and myself only.  
   
 Inspiration has been taken from the following projects:  
 - [sv.h](https://github.com/tsoding/sv)  
