@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -std=c11 -pedantic -ggdb -Wno-gnu-zero-variadic-macro-arguments
+CFLAGS = -Wall -Wextra -std=c23 -pedantic -ggdb
 ROOT   = $(HOME)/dev/c/analib
 TESTS  = $(ROOT)/tests
 LIB    = $(ROOT)/analib.h

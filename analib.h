@@ -2,7 +2,7 @@
 
 -------------- Details --------------
 Name        : Analib
-Version     : 0.2.0
+Version     : 0.2.1
 
 Author      : Simon Danielsson
 Email       : contact@simondanielsson.se
@@ -141,7 +141,7 @@ ANALIB_DEF int AL_str_len(char *s);
 #define AL_log(fmt, ...)                                                       \
   do {                                                                         \
     char msg[64];                                                              \
-    snprintf(msg, sizeof(msg), fmt, ##__VA_ARGS__);                            \
+    snprintf(msg, sizeof(msg), fmt __VA_OPT__(, ) __VA_ARGS__);                \
     _al_db_msg(&(_al_db_type){.msg_col = _al_log_clr,                          \
                               .line = __LINE__,                                \
                               .function = __func__,                            \
@@ -160,7 +160,7 @@ ANALIB_DEF int AL_str_len(char *s);
 #define AL_todo(fmt, ...)                                                      \
   do {                                                                         \
     char msg[64];                                                              \
-    snprintf(msg, sizeof(msg), fmt, ##__VA_ARGS__);                            \
+    snprintf(msg, sizeof(msg), fmt __VA_OPT__(, ) __VA_ARGS__);                \
     _al_db_msg(&(_al_db_type){.msg_col = _al_todo_clr,                         \
                               .line = __LINE__,                                \
                               .function = __func__,                            \

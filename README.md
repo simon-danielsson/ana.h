@@ -7,7 +7,7 @@
 </p>
   
 <p align="center">
-    <img src="https://img.shields.io/badge/C_version-11-cyan?style=flat-square" alt="C version" />
+    <img src="https://img.shields.io/badge/C_version-23-cyan?style=flat-square" alt="C version" />
     <img src="https://img.shields.io/badge/license-MIT-green?style=flat-square" alt="MIT License" />
   <img src="https://img.shields.io/github/last-commit/simon-danielsson/analib-c/main?style=flat-square&color=blue" alt="Last commit" />
 </p>
@@ -36,11 +36,6 @@ Inspiration has been taken from the following projects:
 <div id="usage"></div>
 
 ## Usage
-  
-This library uses gnu extensions, so be sure to add the appropriate compiler flag (only used for variadic arguments in log/todo debug functions):  
-``` bash
--Wno-gnu-zero-variadic-macro-arguments
-```
   
 Copy [analib.h](./analib.h) into your project and include it like this:  
   
