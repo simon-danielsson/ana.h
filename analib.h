@@ -2,7 +2,7 @@
 
 -------------- Details --------------
 Name        : Analib
-Version     : 0.1.9
+Version     : 0.2.0
 
 Author      : Simon Danielsson
 Email       : contact@simondanielsson.se
@@ -57,7 +57,8 @@ typedef struct {
 } _al_db_type;
 
 // generic label builder for debug functions
-static inline void al_db_lbl(const char *label, char *header, int header_size) {
+static inline void _al_db_lbl(const char *label, char *header,
+                              int header_size) {
   int label_size = strlen(label);
   int wings_len = (header_size - label_size);
 
@@ -78,7 +79,7 @@ static inline void al_db_lbl(const char *label, char *header, int header_size) {
 // generic msg call for debug functions
 static inline void _al_db_msg(_al_db_type *t) {
   char label[9];
-  al_db_lbl(t->type, label, 9);
+  _al_db_lbl(t->type, label, 9);
 
   char space[11 + 1];
   memset(space, ' ', 11);
@@ -113,7 +114,7 @@ ANALIB_DEF int AL_str_len(char *s);
 // formatted assert message
 // prints to stderr regardless of condition
 // does not abort on do_abort=true if condition was true
-#define AL_db_assert(cond, do_abort)                                           \
+#define AL_assert(cond, do_abort)                                              \
   do {                                                                         \
     char msg[32];                                                              \
     if (!(cond)) {                                                             \
@@ -137,7 +138,7 @@ ANALIB_DEF int AL_str_len(char *s);
 #define AL_db_log(fmt, ...) ((void)0)
 #else
 // formatted log message
-#define AL_db_log(fmt, ...)                                                    \
+#define AL_log(fmt, ...)                                                       \
   do {                                                                         \
     char msg[64];                                                              \
     snprintf(msg, sizeof(msg), fmt, ##__VA_ARGS__);                            \
@@ -156,7 +157,7 @@ ANALIB_DEF int AL_str_len(char *s);
 #else
 // rust-like formatted todo message that aborts the program if reached
 
-#define AL_db_todo(fmt, ...)                                                   \
+#define AL_todo(fmt, ...)                                                      \
   do {                                                                         \
     char msg[64];                                                              \
     snprintf(msg, sizeof(msg), fmt, ##__VA_ARGS__);                            \
