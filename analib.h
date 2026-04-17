@@ -44,6 +44,7 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #ifndef ANALIB_DEF
 #define ANALIB_DEF
@@ -52,19 +53,30 @@
 // DEFINITIONS: DEBUG
 // =============================================================================
 
-// helper function for debug related functions
+// generic msg call for debug functions
+ANALIB_DEF void AL_db_gen_msg(const char *type, const char *msg,
+                              const char *file, int line);
+
+// generic label builder for debug functions
 ANALIB_DEF void AL_db_make_label(const char *label, char *header,
                                  int header_size);
 
-// formatted log message
-#define AL_db_log(msg) AL_db_log_impl((msg), __FILE_NAME__, __LINE__)
-ANALIB_DEF void AL_db_log_impl(const char *msg, const char *file, int line);
-
-// assert and continue program
+// formatted assert message that does not abort the program
 #define AL_db_assert(cond)                                                     \
-  AL_db_assert_impl((cond), #cond, __FILE_NAME__, __LINE__)
-ANALIB_DEF void AL_db_assert_impl(int cond, const char *expr, const char *file,
-                                  int line);
+  if (cond == false) {                                                         \
+    AL_db_gen_msg("ASSERT", #cond, __FILE_NAME__, __LINE__);                   \
+  }                                                                            \
+  while (0)
+
+// formatted log message
+#define AL_db_log(msg) AL_db_gen_msg("LOG", (msg), __FILE_NAME__, __LINE__);
+
+// rust-like formatted todo message that aborts the program
+#define AL_db_todo(msg)                                                        \
+  do {                                                                         \
+    AL_db_gen_msg("TODO", (msg), __FILE_NAME__, __LINE__);                     \
+    abort();                                                                   \
+  } while (0)
 
 // DEFINITIONS: INTEGERS
 // =============================================================================
@@ -86,17 +98,7 @@ ANALIB_DEF int AL_str_len(char *s);
 // IMPLEMENTATIONS: DEBUG
 // =============================================================================
 
-ANALIB_DEF void AL_db_assert_impl(int cond, const char *expr, const char *file,
-                                  int line) {
-  if (!cond) {
-
-    char label[24];
-    AL_db_make_label("ASSERT", label, 24);
-    fprintf(stderr, "\n%s\nfile  : %s:%d\nfalse : %s\n", label, file, line,
-            expr);
-  }
-}
-
+// generic label builder for debug functions
 ANALIB_DEF void AL_db_make_label(const char *label, char *header,
                                  int header_size) {
   int label_size = strlen(label);
@@ -115,11 +117,13 @@ ANALIB_DEF void AL_db_make_label(const char *label, char *header,
   snprintf(header, header_size, "%s %s %s", wing, label, wing);
 }
 
-ANALIB_DEF void AL_db_log_impl(const char *msg, const char *file, int line) {
-  char label[24];
-  AL_db_make_label("LOG", label, 24);
+// generic msg call for debug functions
+ANALIB_DEF void AL_db_gen_msg(const char *type, const char *msg,
+                              const char *file, int line) {
 
-  fprintf(stdout, "\n%s\nfile  : %s:%d\nmsg   : %s\n", label, file, line, msg);
+  char label[24];
+  AL_db_make_label(type, label, 24);
+  fprintf(stderr, "\n%s\nfile  : %s:%d\nmsg   : %s\n", label, file, line, msg);
 }
 
 // IMPLEMENTATIONS: INTEGERS
