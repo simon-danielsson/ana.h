@@ -1,22 +1,13 @@
 // -------------- Details --------------
 //
 // Name    : Analib
-// Version : 0.1.2
+// Version : 0.1.3
 //
 // Author  : Simon Danielsson
 // Email   : contact@simondanielsson.se
 // Website : https://www.simondanielsson.se/
 //
-// ------------ Description ------------
-//
-// This library was built to contain most of the common utilities I need for
-// building programs in C. I have chosen not to constrain the library to any
-// specific utility or theme - my goal is instead to have a single header file
-// filled with everything I need, that I can copy into my projects as an easy
-// default. Analib is a highly opinionated and personal library catered only to
-// myself, and myself only.
-//
-// -------------- License --------------
+// ------------ MIT License ------------
 //
 // Copyright © 2026 Simon Danielsson
 //
@@ -50,31 +41,39 @@
 #define ANALIB_DEF
 #endif // ANALIB_DEF
 
-// DEFINITIONS: DEBUG
+// DEFINITIONS: STRINGS
 // =============================================================================
 
-// generic msg call for debug functions
-ANALIB_DEF static inline void AL_db_gen_msg(const char *type, const char *msg,
-                                            const char *file, int line);
+// get length of str
+ANALIB_DEF int AL_str_len(char *s);
+
+// DEFINITIONS: DEBUG
+// =============================================================================
 
 // generic label builder for debug functions
 ANALIB_DEF static inline void AL_db_make_label(const char *label, char *header,
                                                int header_size);
 
+// generic msg call for debug functions
+ANALIB_DEF static inline void AL_db_gen_msg(const char *type, const char *msg,
+                                            const char *file, int line,
+                                            const char *function);
+
 // formatted assert message that does not abort the program
 #define AL_db_assert(cond)                                                     \
   if (cond == false) {                                                         \
-    AL_db_gen_msg("ASSERT", #cond, __FILE_NAME__, __LINE__);                   \
+    AL_db_gen_msg("ASSERT", #cond, __FILE_NAME__, __LINE__, __FUNCTION__);     \
   }                                                                            \
   while (0)
 
 // formatted log message
-#define AL_db_log(msg) AL_db_gen_msg("LOG", (msg), __FILE_NAME__, __LINE__);
+#define AL_db_log(msg)                                                         \
+  AL_db_gen_msg("LOG", msg, __FILE_NAME__, __LINE__, __FUNCTION__);
 
 // rust-like formatted todo message that aborts the program
 #define AL_db_todo(msg)                                                        \
   do {                                                                         \
-    AL_db_gen_msg("TODO", (msg), __FILE_NAME__, __LINE__);                     \
+    AL_db_gen_msg("TODO", (msg), __FILE_NAME__, __LINE__, __FUNCTION__);       \
     abort();                                                                   \
   } while (0)
 
@@ -94,12 +93,6 @@ static inline double AL_max_double(double a, double b);
 #define AL_cmp_max(a, b)                                                       \
   _Generic((a) + (b), int: max_int, double: max_double)(a, b)
 
-// DEFINITIONS: STRINGS
-// =============================================================================
-
-// get length of str
-ANALIB_DEF int AL_str_len(char *s);
-
 #endif // ANALIB_H_
 #ifdef ANALIB_IMPLEMENTATION
 
@@ -110,7 +103,7 @@ ANALIB_DEF int AL_str_len(char *s);
 ANALIB_DEF static inline void AL_db_make_label(const char *label, char *header,
                                                int header_size) {
   int label_size = strlen(label);
-  int wings_len = (header_size - label_size - 2) / 2;
+  int wings_len = (header_size - label_size);
 
   if (wings_len <= 0 || header_size <= 0) {
     if (header_size > 0)
@@ -119,21 +112,27 @@ ANALIB_DEF static inline void AL_db_make_label(const char *label, char *header,
   }
 
   char wing[wings_len + 1];
-  memset(wing, '-', wings_len);
+  memset(wing, ' ', wings_len);
   wing[wings_len] = '\0';
 
-  snprintf(header, header_size, "%s %s %s", wing, label, wing);
+  snprintf(header, header_size, " %s %s", label, wing);
 }
 
 // generic msg call for debug functions
 ANALIB_DEF static inline void AL_db_gen_msg(const char *type, const char *msg,
-                                            const char *file, int line) {
+                                            const char *file, int line,
+                                            const char *function) {
 
-  char label[24];
-  AL_db_make_label(type, label, 24);
-  fprintf(stderr, "\n%s\nfile  : %s:%d\nmsg   : %s\n", label, file, line, msg);
+  char label[9];
+  AL_db_make_label(type, label, 9);
+
+  char space[11 + 1];
+  memset(space, ' ', 11);
+  space[11] = '\0';
+
+  fprintf(stderr, "\n->%s  %s:%d (%s)\n%s %s\n", label, file, line, function,
+          space, msg);
 }
-
 // IMPLEMENTATIONS: INTEGERS
 // =============================================================================
 
