@@ -54,12 +54,12 @@
 // =============================================================================
 
 // generic msg call for debug functions
-ANALIB_DEF void AL_db_gen_msg(const char *type, const char *msg,
-                              const char *file, int line);
+ANALIB_DEF static inline void AL_db_gen_msg(const char *type, const char *msg,
+                                            const char *file, int line);
 
 // generic label builder for debug functions
-ANALIB_DEF void AL_db_make_label(const char *label, char *header,
-                                 int header_size);
+ANALIB_DEF static inline void AL_db_make_label(const char *label, char *header,
+                                               int header_size);
 
 // formatted assert message that does not abort the program
 #define AL_db_assert(cond)                                                     \
@@ -78,13 +78,21 @@ ANALIB_DEF void AL_db_make_label(const char *label, char *header,
     abort();                                                                   \
   } while (0)
 
-// DEFINITIONS: INTEGERS
+// DEFINITIONS: INTEGERS, FLOATS & DOUBLES
 // =============================================================================
 
-// compare two integers and return the bigger one
-ANALIB_DEF int AL_int_max(int a, int b);
-// compare two integers and return the smaller one
-ANALIB_DEF int AL_int_min(int a, int b);
+static inline int AL_min_int(int a, int b);
+static inline int AL_max_int(int a, int b);
+static inline double AL_min_double(double a, double b);
+static inline double AL_max_double(double a, double b);
+
+// compare two integers or doubles and return the smaller one
+#define AL_cmp_min(a, b)                                                       \
+  _Generic((a) + (b), int: min_int, double: min_double)(a, b)
+
+// compare two integers or doubles and return the bigger one
+#define AL_cmp_max(a, b)                                                       \
+  _Generic((a) + (b), int: max_int, double: max_double)(a, b)
 
 // DEFINITIONS: STRINGS
 // =============================================================================
@@ -99,8 +107,8 @@ ANALIB_DEF int AL_str_len(char *s);
 // =============================================================================
 
 // generic label builder for debug functions
-ANALIB_DEF void AL_db_make_label(const char *label, char *header,
-                                 int header_size) {
+ANALIB_DEF static inline void AL_db_make_label(const char *label, char *header,
+                                               int header_size) {
   int label_size = strlen(label);
   int wings_len = (header_size - label_size - 2) / 2;
 
@@ -118,8 +126,8 @@ ANALIB_DEF void AL_db_make_label(const char *label, char *header,
 }
 
 // generic msg call for debug functions
-ANALIB_DEF void AL_db_gen_msg(const char *type, const char *msg,
-                              const char *file, int line) {
+ANALIB_DEF static inline void AL_db_gen_msg(const char *type, const char *msg,
+                                            const char *file, int line) {
 
   char label[24];
   AL_db_make_label(type, label, 24);
@@ -129,9 +137,14 @@ ANALIB_DEF void AL_db_gen_msg(const char *type, const char *msg,
 // IMPLEMENTATIONS: INTEGERS
 // =============================================================================
 
-ANALIB_DEF int AL_int_min(int a, int b) { return a < b ? a : b; }
-
-ANALIB_DEF int AL_int_max(int a, int b) { return a > b ? a : b; }
+ANALIB_DEF static inline int min_int(int a, int b) { return a < b ? a : b; }
+ANALIB_DEF static inline int max_int(int a, int b) { return a > b ? a : b; }
+ANALIB_DEF static inline double min_double(double a, double b) {
+  return a < b ? a : b;
+}
+ANALIB_DEF static inline double max_double(double a, double b) {
+  return a > b ? a : b;
+}
 
 // IMPLEMENTATIONS: STRINGS
 // =============================================================================
