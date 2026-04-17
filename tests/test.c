@@ -9,9 +9,6 @@ int sum(int x, int y) {
 }
 
 int main(void) {
-
-    // int z = sum(5, 4);
-
     printf("%d\n", AL_cmp_min(5, 6));
     printf("%.2f\n", AL_cmp_min(5.2, 6.8));
     printf("%d\n", AL_cmp_max(5, 6));

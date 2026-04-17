@@ -10,7 +10,6 @@ Repository  : https://github.com/simon-danielsson/analib.h
 Website     : https://www.simondanielsson.se/
 
 ------------ MIT License ------------
-
 Copyright © 2026 Simon Danielsson
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -143,7 +142,7 @@ ANALIB_DEF int AL_str_len(char *s);
 
 #endif // ANALIB_H_
 
-// IMPLEMENTATION
+// IMPLEMENTATIONS
 // =============================================================================
 
 #ifdef ANALIB_IMPLEMENTATION
