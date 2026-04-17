@@ -1,11 +1,12 @@
 // -------------- Details --------------
 //
-// Name    : Analib
-// Version : 0.1.3
+// Name        : Analib
+// Version     : 0.1.3
 //
-// Author  : Simon Danielsson
-// Email   : contact@simondanielsson.se
-// Website : https://www.simondanielsson.se/
+// Author      : Simon Danielsson
+// Email       : contact@simondanielsson.se
+// Repository  : https://github.com/simon-danielsson/analib-c
+// Website     : https://www.simondanielsson.se/
 //
 // ------------ MIT License ------------
 //
