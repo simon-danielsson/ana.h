@@ -1,3 +1,4 @@
+#include <stdio.h>
 #define ANALIB_IMPLEMENTATION
 #include "../analib.h"
 
@@ -17,7 +18,6 @@ void test3(void) {
 }
 
 int main(void) {
-
     AL_log("Initiating tests...");
     test1();
     test2();

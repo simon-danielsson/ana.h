@@ -1,13 +1,13 @@
 /*
 
 -------------- Details --------------
-Name        : Analib
-Version     : 0.2.2
+Name     : Analib
+Version  : 0.2.3
+Repo     : https://github.com/simon-danielsson/analib.h
 
-Author      : Simon Danielsson
-Email       : contact@simondanielsson.se
-Repository  : https://github.com/simon-danielsson/analib.h
-Website     : https://www.simondanielsson.se/
+Author   : Simon Danielsson
+Email    : contact@simondanielsson.se
+Website  : https://www.simondanielsson.se/
 
 ------------ MIT License ------------
 Copyright © 2026 Simon Danielsson
@@ -106,6 +106,7 @@ ANALIB_DEF int AL_str_len(char *s);
 
 #define _al_log_clr "\033[34m"
 #define _al_assert_clr "\033[31m"
+#define _al_assert_succ_clr "\033[32m"
 #define _al_todo_clr "\033[33m"
 
 // formatted assert message
@@ -114,12 +115,15 @@ ANALIB_DEF int AL_str_len(char *s);
 #define AL_assert(cond, do_abort)                                              \
   do {                                                                         \
     char msg[32];                                                              \
+    char msg_col[32];                                                          \
     if (!(cond)) {                                                             \
       snprintf(msg, sizeof(msg), "failure -> %s", #cond);                      \
+      snprintf(msg_col, sizeof(msg_col), "%s", _al_assert_clr);                \
     } else {                                                                   \
       snprintf(msg, sizeof(msg), "success -> %s", #cond);                      \
+      snprintf(msg_col, sizeof(msg_col), "%s", _al_assert_succ_clr);           \
     }                                                                          \
-    _al_db_msg(&(_al_db_type){.msg_col = _al_assert_clr,                       \
+    _al_db_msg(&(_al_db_type){.msg_col = msg_col,                              \
                               .line = __LINE__,                                \
                               .function = __func__,                            \
                               .file = __FILE_NAME__,                           \
