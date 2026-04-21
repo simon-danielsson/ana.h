@@ -2,7 +2,7 @@
 
 -------------- Details --------------
 Name     : Analib
-Version  : 0.2.4
+Version  : 0.2.5
 Repo     : https://github.com/simon-danielsson/analib.h
 
 Author   : Simon Danielsson
@@ -85,8 +85,8 @@ static inline void _al_db_msg(_al_db_type *t) {
   memset(space, ' ', 11);
   space[11] = '\0';
 
-  fprintf(stderr, "%s%-11s%s%s:%d (%s)%-5s%s\n", t->msg_col, t->type,
-          _al_reset_clr, t->file, t->line, t->function, " ", t->msg);
+  fprintf(stderr, "%s%s %s%s:%d (%s)%s%s\n", t->msg_col, t->type, _al_reset_clr,
+          t->file, t->line, t->function, " ", t->msg);
 }
 
 static inline int _al_min_int(int a, int b) { return a < b ? a : b; }
