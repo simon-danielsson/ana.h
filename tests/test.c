@@ -6,27 +6,24 @@ int sum(int x, int y) { return x + y; }
 
 void test1(void) {
     int x = sum(6, 6);
-    AL_assert(x == 12, true);
+    ASSERT(x == 12, true);
 }
 void test2(void) {
     int x = sum(7, 6);
-    AL_assert(x == 13, true);
+    ASSERT(x == 13, true);
 }
 void test3(void) {
     int sum_return = sum(1, 6);
-    AL_assert(sum_return == 25, false);
+    ASSERT(sum_return == 25, false);
 }
 
 int main(void) {
-    AL_log("Initiating tests...");
+    LOG("Initiating tests...");
     test1();
     test2();
     test3();
-    AL_log("Finished with tests %d, %d and %d.", 1, 2, 3);
-    {
-        int tests_left[] = {3, 2, 1};
-        int n = *(&tests_left + 1) - tests_left;
-        AL_todo("add %d more tests", AL_int_arr_sum(tests_left, n));
-    }
+    LOG("Finished with tests %d, %d and %d.", 1, 2, 3);
+    int tests_left = 5;
+    IMPL("add %d more tests", tests_left);
     return 0;
 }

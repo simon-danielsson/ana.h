@@ -2,7 +2,7 @@
 
 -------------- Details --------------
 Name     : Analib
-Version  : 0.2.3
+Version  : 0.2.4
 Repo     : https://github.com/simon-danielsson/analib.h
 
 Author   : Simon Danielsson
@@ -85,7 +85,7 @@ static inline void _al_db_msg(_al_db_type *t) {
   memset(space, ' ', 11);
   space[11] = '\0';
 
-  fprintf(stderr, "%s%-8s%s%s:%d (%s)%-2s%-32s\n", t->msg_col, t->type,
+  fprintf(stderr, "%s%-11s%s%s:%d (%s)%-5s%s\n", t->msg_col, t->type,
           _al_reset_clr, t->file, t->line, t->function, " ", t->msg);
 }
 
@@ -101,21 +101,16 @@ static inline double _al_max_double(double a, double b) {
 // PUBLIC API
 // =============================================================================
 
-// get length of str
-ANALIB_DEF int AL_str_len(char *s);
-
-// sum int array recursively
-ANALIB_DEF int AL_int_arr_sum(int arr[], int n);
-
 #define _al_log_clr "\033[34m"
 #define _al_assert_clr "\033[31m"
+#define _al_error_clr "\033[31m"
 #define _al_assert_succ_clr "\033[32m"
 #define _al_todo_clr "\033[33m"
 
 // formatted assert message
 // prints to stderr regardless of condition
 // does not abort on do_abort=true if condition was true
-#define AL_assert(cond, do_abort)                                              \
+#define ASSERT(cond, do_abort)                                                 \
   do {                                                                         \
     char msg[32];                                                              \
     char msg_col[32];                                                          \
@@ -138,40 +133,48 @@ ANALIB_DEF int AL_int_arr_sum(int arr[], int n);
   } while (0)
 
 // formatted log message
-#define AL_log(fmt, ...)                                                       \
+#define LOG(fmt, ...)                                                          \
   do {                                                                         \
-    char msg[64];                                                              \
+    char msg[128];                                                             \
     snprintf(msg, sizeof(msg), fmt __VA_OPT__(, ) __VA_ARGS__);                \
     _al_db_msg(&(_al_db_type){.msg_col = _al_log_clr,                          \
                               .line = __LINE__,                                \
                               .function = __func__,                            \
                               .file = __FILE_NAME__,                           \
-                              .type = "LOG",                                   \
+                              .type = "INFO",                                  \
                               .msg = msg});                                    \
+  } while (0)
+
+// formatted log message
+#define ERROR(fmt, ...)                                                        \
+  do {                                                                         \
+    char msg[128];                                                             \
+    snprintf(msg, sizeof(msg), fmt __VA_OPT__(, ) __VA_ARGS__);                \
+    _al_db_msg(&(_al_db_type){.msg_col = _al_error_clr,                        \
+                              .line = __LINE__,                                \
+                              .function = __func__,                            \
+                              .file = __FILE_NAME__,                           \
+                              .type = "ERROR",                                 \
+                              .msg = msg});                                    \
+    exit(1);                                                                   \
   } while (0)
 
 // rust-like formatted todo message that aborts the program if reached
 
-#define AL_todo(fmt, ...)                                                      \
+#define IMPL(fmt, ...)                                                         \
   do {                                                                         \
-    char msg[64];                                                              \
+    char msg[128];                                                             \
     snprintf(msg, sizeof(msg), fmt __VA_OPT__(, ) __VA_ARGS__);                \
+    char msg2[128];                                                            \
+    snprintf(msg2, sizeof(msg2), "Not implemented -> %s", msg);                \
     _al_db_msg(&(_al_db_type){.msg_col = _al_todo_clr,                         \
                               .line = __LINE__,                                \
                               .function = __func__,                            \
                               .file = __FILE_NAME__,                           \
-                              .type = "TODO",                                  \
-                              .msg = msg});                                    \
+                              .type = "IMPL",                                  \
+                              .msg = msg2});                                   \
     abort();                                                                   \
   } while (0)
-
-// compare two integers or doubles and return the smaller one
-#define AL_cmp_min(a, b)                                                       \
-  _Generic((a) + (b), int: _al_min_int, double: _al_min_double)(a, b)
-
-// compare two integers or doubles and return the bigger one
-#define AL_cmp_max(a, b)                                                       \
-  _Generic((a) + (b), int: _al_max_int, double: _al_max_double)(a, b)
 
 #endif // ANALIB_H_
 
@@ -179,18 +182,5 @@ ANALIB_DEF int AL_int_arr_sum(int arr[], int n);
 // =============================================================================
 
 #ifdef ANALIB_IMPLEMENTATION
-
-ANALIB_DEF int AL_str_len(char *s) {
-  char *t;
-  for (t = s; *t != '\0'; t++)
-    ;
-  return t - s;
-}
-
-ANALIB_DEF int AL_int_arr_sum(int arr[], int n) {
-  if (n == 0)
-    return 0;
-  return arr[n - 1] + AL_int_arr_sum(arr, n - 1);
-}
 
 #endif // ANALIB_IMPLEMENTATION
