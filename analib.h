@@ -2,7 +2,7 @@
 
 -------------- Details --------------
 Name     : Analib
-Version  : 0.2.6
+Version  : 0.2.7
 Repo     : https://github.com/simon-danielsson/analib.h
 
 Author   : Simon Danielsson
@@ -60,20 +60,16 @@ typedef struct {
 // generic label builder for debug functions
 static inline void _al_db_lbl(const char *label, char *header,
                               int header_size) {
-  int label_size = strlen(label);
-  int wings_len = (header_size - label_size);
-
-  if (wings_len <= 0 || header_size <= 0) {
-    if (header_size > 0)
-      header[0] = '\0';
+  if (header_size <= 0)
     return;
-  }
 
-  char wing[wings_len + 1];
-  memset(wing, ' ', wings_len);
-  wing[wings_len] = '\0';
+  int written = snprintf(header, header_size, " %s ", label);
+  if (written < 0 || written >= header_size)
+    return;
 
-  snprintf(header, header_size, " %s %s", label, wing);
+  int remaining = header_size - written - 1; // leave room for '\0'
+  memset(header + written, ' ', remaining);
+  header[written + remaining] = '\0';
 }
 
 #define _al_reset_clr "\033[0m"
