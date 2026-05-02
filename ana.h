@@ -38,6 +38,10 @@ SOFTWARE.
 #include <sys/stat.h>
 #include <unistd.h>
 
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+#endif
+
 #ifndef ANALIB_DEF
 #define ANALIB_DEF
 #endif // ANALIB_DEF
@@ -295,10 +299,6 @@ char *al_join_lines(char **lines, int n, char *delim) {
 
   return out;
 }
-
-#if defined(__APPLE__)
-#include <mach-o/dyld.h>
-#endif
 
 /// get dir of the current binary (experimental)
 char *al_get_executable_dir(void) {
