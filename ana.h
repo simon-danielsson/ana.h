@@ -1,5 +1,5 @@
 /*
-ana.h v0.2.8
+ana.h v0.3.0
 https://github.com/simon-danielsson/analib.h
 
 ------------ MIT License ------------
@@ -29,10 +29,14 @@ SOFTWARE.
 #define ANALIB_H_
 
 #include <ctype.h>
+#include <limits.h>
+#include <pwd.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
 
 #ifndef ANALIB_DEF
 #define ANALIB_DEF
@@ -92,25 +96,34 @@ static inline double _al_max_double(double a, double b) {
 // =============================================================================
 
 // checks if the input str contains nothing
-bool is_empty_or_whitespace(const char *str);
+bool al_is_empty_or_whitespace(const char *str);
 
 // remove special characters form str in place
-void rem_spec_chars(char *str);
+void al_rem_spec_chars(char *str);
 
 // checks if param *str contains param *word
-bool contains(const char *str, const char *word);
+bool al_contains(const char *str, const char *word);
 
 // checks if param *str starts with param *word
-bool starts_with(const char *str, const char *word);
+bool al_starts_with(const char *str, const char *word);
 
 // helper for duplicating strings
 char *al_strdup(const char *s);
 
-// param: input array of *char
-// param: n count of array
-// param: delimiter between each line
-// returns a single concatenated string
-char *join_lines(char **lines, int n, char *delim);
+// joins lines with delimiter
+char *al_join_lines(char **lines, int n, char *delim);
+
+// get dir of the current binary (experimental)
+char *al_get_executable_dir(void);
+
+// returns true if input is a valid path
+bool al_is_valid_path(const char *s);
+
+// strips input string to the last filename/dir name
+char *al_strip_path(char *file_name);
+
+// converts characters of input string to uppercase
+char *al_str_to_upper(const char *str);
 
 #define _al_log_clr "\033[34m"
 #define _al_assert_clr "\033[31m"
@@ -194,8 +207,8 @@ char *join_lines(char **lines, int n, char *delim);
 
 #ifdef ANALIB_IMPLEMENTATION
 
-// checks if the input str contains nothing
-bool is_empty_or_whitespace(const char *str) {
+/// checks if the input str contains nothing
+bool al_is_empty_or_whitespace(const char *str) {
   if (str == NULL)
     return true;
   while (*str) {
@@ -207,8 +220,8 @@ bool is_empty_or_whitespace(const char *str) {
   return true;
 }
 
-// remove special characters form str in place
-void rem_spec_chars(char *str) {
+/// remove special characters form str in place
+void al_rem_spec_chars(char *str) {
   char *dst = str;
 
   while (*str) {
@@ -221,13 +234,13 @@ void rem_spec_chars(char *str) {
   *dst = '\0';
 }
 
-// checks if param *str contains param *word
-bool contains(const char *str, const char *word) {
+/// checks if param *str contains param *word
+bool al_contains(const char *str, const char *word) {
   return strstr(str, word) != NULL;
 }
 
 // checks if param *str starts with param *word
-bool starts_with(const char *str, const char *word) {
+bool al_starts_with(const char *str, const char *word) {
   size_t len_str = strlen(str);
   size_t len_word = strlen(word);
 
@@ -236,7 +249,7 @@ bool starts_with(const char *str, const char *word) {
   return strncmp(str, word, len_word) == 0;
 }
 
-// helper for duplicating strings
+/// helper for duplicating strings
 char *al_strdup(const char *s) {
   if (!s)
     return NULL;
@@ -249,11 +262,12 @@ char *al_strdup(const char *s) {
   return out;
 }
 
-// param: input array of *char
-// param: n count of array
-// param: delimiter between each line
-// returns a single concatenated string
-char *join_lines(char **lines, int n, char *delim) {
+/// joins lines with delimiter
+/// @param input array of *char
+/// @param n count of array
+/// @param delimiter between each line
+/// @return a single concatenated string
+char *al_join_lines(char **lines, int n, char *delim) {
   size_t total = 1; // for '\0'
 
   for (int i = 0; i < n; i++) {
@@ -281,4 +295,98 @@ char *join_lines(char **lines, int n, char *delim) {
 
   return out;
 }
+
+/// get dir of the current binary (experimental)
+char *al_get_executable_dir(void) {
+  char path[PATH_MAX];
+  size_t len = 0;
+
+#if defined(__linux__)
+  ssize_t r = readlink("/proc/self/exe", path, sizeof(path) - 1);
+  if (r == -1)
+    return NULL;
+  path[r] = '\0';
+  len = (size_t)r;
+
+#elif defined(__APPLE__)
+  uint32_t size = sizeof(path);
+  if (_NSGetExecutablePath(path, &size) != 0)
+    return NULL;
+
+  // mac can return a relative path
+  char resolved[PATH_MAX];
+  if (realpath(path, resolved) == NULL)
+    return NULL;
+
+  strncpy(path, resolved, sizeof(path));
+  path[sizeof(path) - 1] = '\0';
+  len = strlen(path);
+#endif
+
+  // strip filename to get directory
+  for (size_t i = len; i > 0; i--) {
+    if (path[i] == '/') {
+      path[i] = '\0';
+      break;
+    }
+  }
+
+  return al_strdup(path); // caller must free
+}
+
+/// returns true if input is a valid path
+/// @param relative or absolute path to file or dir
+bool al_is_valid_path(const char *s) {
+  struct stat path_stat;
+
+  if (stat(s, &path_stat) != 0) {
+    // path does not exist or is not accessible
+    return false;
+  }
+
+  // path is:
+  if (S_ISREG(path_stat.st_mode)) {
+    // regular file
+    return true;
+  } else if (S_ISDIR(path_stat.st_mode)) {
+    // directory
+    return true;
+  } else {
+    // something else (symlink, socket etc.)
+    return false;
+  }
+  return true;
+}
+
+/// strips input string to the last filename/dir name
+/// @param path
+/// @important unix '/' paths only
+char *al_strip_path(char *file_name) {
+  char output[200] = {0};
+  int counter = strlen(file_name);
+  while (true) {
+    if (file_name[counter] != '/') {
+      strcpy(output, &file_name[counter]);
+      counter--;
+    } else {
+      break;
+    }
+  }
+  return al_strdup(output);
+}
+
+/// converts characters of input string to uppercase
+/// @param lowercase str
+/// @return uppercase str
+char *al_str_to_upper(const char *str) {
+  int i = 0;
+  char temp[124];
+  temp[0] = '\0';
+  while (str[i] != '\0') {
+    temp[i] = toupper(str[i]); // Convert character to uppercase
+    i++;
+  }
+  return al_strdup(temp);
+}
+
 #endif // ANALIB_IMPLEMENTATION
