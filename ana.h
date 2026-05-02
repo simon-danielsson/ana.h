@@ -296,41 +296,73 @@ char *al_join_lines(char **lines, int n, char *delim) {
   return out;
 }
 
+#if defined(__APPLE__)
+#include <mach-o/dyld.h>
+#endif
+
 /// get dir of the current binary (experimental)
 char *al_get_executable_dir(void) {
   char path[PATH_MAX];
-  size_t len = 0;
 
 #if defined(__linux__)
-  ssize_t r = readlink("/proc/self/exe", path, sizeof(path) - 1);
-  if (r == -1)
+  ssize_t n = readlink("/proc/self/exe", path, sizeof(path) - 1);
+  if (n < 0 || n >= (ssize_t)sizeof(path))
     return NULL;
-  path[r] = '\0';
-  len = (size_t)r;
+
+  path[n] = '\0';
 
 #elif defined(__APPLE__)
   uint32_t size = sizeof(path);
-  if (_NSGetExecutablePath(path, &size) != 0)
-    return NULL;
 
-  // mac can return a relative path
-  char resolved[PATH_MAX];
-  if (realpath(path, resolved) == NULL)
-    return NULL;
+  if (_NSGetExecutablePath(path, &size) != 0) {
+    // PATH_MAX was too small; handle dynamically
+    char *tmp = malloc(size);
+    if (!tmp)
+      return NULL;
 
-  strncpy(path, resolved, sizeof(path));
-  path[sizeof(path) - 1] = '\0';
-  len = strlen(path);
-#endif
-
-  // strip filename to get directory
-  for (size_t i = len; i > 0; i--) {
-    if (path[i] == '/') {
-      path[i] = '\0';
-      break;
+    if (_NSGetExecutablePath(tmp, &size) != 0) {
+      free(tmp);
+      return NULL;
     }
+
+    char *resolved = realpath(tmp, NULL);
+    free(tmp);
+
+    if (!resolved)
+      return NULL;
+
+    char *slash = strrchr(resolved, '/');
+    if (!slash) {
+      free(resolved);
+      return NULL;
+    }
+
+    *slash = '\0';
+    return resolved; // caller must free
   }
 
+  char *resolved = realpath(path, NULL);
+  if (!resolved)
+    return NULL;
+
+  char *slash = strrchr(resolved, '/');
+  if (!slash) {
+    free(resolved);
+    return NULL;
+  }
+
+  *slash = '\0';
+  return resolved; // caller must free
+
+#else
+  return NULL;
+#endif
+
+  char *slash = strrchr(path, '/');
+  if (!slash)
+    return NULL;
+
+  *slash = '\0';
   return al_strdup(path); // caller must free
 }
 
