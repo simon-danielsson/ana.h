@@ -368,7 +368,7 @@ char *al_strip_start_end(char *s) {
   while (true) {
     len--;
     if (!isspace((unsigned char)s[len])) {
-      printf("%c\n", s[len]);
+      // printf("%c\n", s[len]);
       break;
     }
   }
