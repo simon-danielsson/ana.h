@@ -1,4 +1,4 @@
-//! ana.h v0.4.2
+//! ana.h v0.4.3
 //!
 //! https://github.com/simon-danielsson/analib.h
 
@@ -120,6 +120,9 @@ char *al_strip_path(char *file_name);
 
 // converts characters of input string to uppercase
 char *al_str_to_upper(const char *str);
+
+/// remove first n characters from string with memmove
+void al_remove_first_n(char *c, int n);
 
 #define _al_log_clr "\033[34m"
 #define _al_assert_clr "\033[31m"
@@ -331,6 +334,18 @@ char *al_strip_path(char *file_name) {
     }
   }
   return al_strdup(output);
+}
+
+/// remove first n characters from string with memmove
+/// @param string
+/// @param n len to remove
+void al_remove_first_n(char *c, int n) {
+  int len = strlen(c);
+  if (n >= len) {
+    c[0] = '\0';
+    return;
+  }
+  memmove(c, c + n, len - n + 1); // +1 for null terminator
 }
 
 /// converts characters of input string to uppercase
