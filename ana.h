@@ -1,4 +1,4 @@
-//! ana.h v0.4.3
+//! ana.h v0.4.4
 //!
 //! https://github.com/simon-danielsson/analib.h
 
@@ -105,6 +105,9 @@ bool al_contains(const char *str, const char *word);
 
 // checks if param *str starts with param *word
 bool al_starts_with(const char *str, const char *word);
+
+/// checks if *str starts *word, ignoring leading whitespace
+bool al_starts_with_no_w(const char *line, const char *word);
 
 // helper for duplicating strings
 char *al_strdup(const char *s);
@@ -246,6 +249,21 @@ bool al_starts_with(const char *str, const char *word) {
   if (len_word > len_str)
     return false;
   return strncmp(str, word, len_word) == 0;
+}
+
+/// checks if *str starts *word, ignoring leading whitespace
+bool al_starts_with_no_w(const char *line, const char *word) {
+  if (!line || !word)
+    return false;
+  // skip leading whitespace
+  while (*line && isspace((unsigned char)*line)) {
+    line++;
+  }
+  size_t len = strlen(word);
+  if (strncmp(line, word, len) != 0) {
+    return false;
+  }
+  return true;
 }
 
 /// helper for duplicating strings
